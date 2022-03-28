@@ -1,0 +1,12 @@
+C:\Users\owner\Documents\KennyProjects\JwtWebApi\EmailService\bin\Debug\net5.0\EmailService.deps.json
+C:\Users\owner\Documents\KennyProjects\JwtWebApi\EmailService\bin\Debug\net5.0\EmailService.dll
+C:\Users\owner\Documents\KennyProjects\JwtWebApi\EmailService\bin\Debug\net5.0\ref\EmailService.dll
+C:\Users\owner\Documents\KennyProjects\JwtWebApi\EmailService\bin\Debug\net5.0\EmailService.pdb
+C:\Users\owner\Documents\KennyProjects\JwtWebApi\EmailService\obj\Debug\net5.0\EmailService.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\owner\Documents\KennyProjects\JwtWebApi\EmailService\obj\Debug\net5.0\EmailService.AssemblyInfoInputs.cache
+C:\Users\owner\Documents\KennyProjects\JwtWebApi\EmailService\obj\Debug\net5.0\EmailService.AssemblyInfo.cs
+C:\Users\owner\Documents\KennyProjects\JwtWebApi\EmailService\obj\Debug\net5.0\EmailService.csproj.CoreCompileInputs.cache
+C:\Users\owner\Documents\KennyProjects\JwtWebApi\EmailService\obj\Debug\net5.0\EmailService.dll
+C:\Users\owner\Documents\KennyProjects\JwtWebApi\EmailService\obj\Debug\net5.0\ref\EmailService.dll
+C:\Users\owner\Documents\KennyProjects\JwtWebApi\EmailService\obj\Debug\net5.0\EmailService.pdb
+C:\Users\owner\Documents\KennyProjects\JwtWebApi\EmailService\obj\Debug\net5.0\EmailService.csproj.AssemblyReference.cache
