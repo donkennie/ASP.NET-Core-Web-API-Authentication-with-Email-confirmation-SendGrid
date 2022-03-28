@@ -1,0 +1,6 @@
+logs/
+JwtWebApi/obj/
+JwtWebApi/bin/
+JwtWebApi/Migrations/
+EmailService/bin/
+EmailService/obj/
