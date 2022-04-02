@@ -27,19 +27,18 @@ namespace JwtWebApi.Controllers
 
         public WeatherForecastController(ILogger<WeatherForecastController> logger)
         {
-            //_emailSender = emailSender;
+           
             _logger = logger;
         }
 
         [HttpGet]
         public IEnumerable<WeatherForecast> Get()
         {
-            //var userId = User.FindFirst(ClaimTypes.NameIdentifier);
+            var userId = User.FindFirst(ClaimTypes.NameIdentifier);
 
             var rng = new Random();
 
-          //  var message = new Message(new string[] { "ajeigbekehinde160@gmail.com" }, "hi", "hello.", "ajeigbekehinde160@gmail.com");
-           // _emailSender.SendEmail(message);
+         
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
                 Date = DateTime.Now.AddDays(index),

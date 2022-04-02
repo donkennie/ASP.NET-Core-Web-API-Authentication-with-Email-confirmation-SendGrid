@@ -22,10 +22,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DbContext\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\EmailService\EmailService.csproj" />
   </ItemGroup>
 

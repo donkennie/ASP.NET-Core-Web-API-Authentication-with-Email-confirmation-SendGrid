@@ -2,10 +2,12 @@
 using JwtWebApi.IdentityAuth;
 using JwtWebApi.Models;
 using JwtWebApi.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -21,55 +23,29 @@ namespace JwtWebApi.Controllers
     [ApiController]
     public class AuthenticateController : ControllerBase
     {
-        private IUserService _userService;
-        private IMailService _mailService;
-        private IConfiguration _configuration;
-        public AuthenticateController(IUserService userService, IMailService mailService, IConfiguration configuration)
-        {
-            _userService = userService;
-            _mailService = mailService;
-            _configuration = configuration;
-        }
-        /* private readonly UserManager<ApplicationUser> _userManager;
+         private readonly UserManager<ApplicationUser> _userManager;
 
          private readonly RoleManager<IdentityRole> _roleManager;
 
          private readonly IConfiguration _configuration;
 
-        private readonly IEmailSender _emailSender;*/
+       // private readonly IEmailSender _emailSenderForMimeKit;
 
-       // private readonly IEmailSender _emailSender;
+         private readonly IMailService _mailService;
 
-         //private readonly IMailService _mailService;
-
-        /* public AuthenticateController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration, IEmailSender emailSender)// IEmailSender emailSender) //IMailService mailService)
+         public AuthenticateController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration configuration /*IEmailSender emailSenderForMimeKit*/, IMailService mailService)
          {
              _userManager = userManager;
              _roleManager = roleManager;
              _configuration = configuration;
-            _emailSender = emailSender;
-          //  _emailSender = emailSender;
-            // _mailService = mailService;
-         }*/
+          //  _emailSenderForMimeKit = emailSenderForMimeKit;      
+             _mailService = mailService;
+         }
 
         [HttpPost]
         [Route("register")]
 
-        public async Task<IActionResult> RegisterAsync([FromBody] RegisterModel model)
-        {
-            if (ModelState.IsValid)
-            {
-                var result = await _userService.RegisterUserAsync(model);
-
-                if (result.IsSuccess)
-                    return Ok(result); // Status Code: 200 
-
-                return BadRequest(result);
-            }
-
-            return BadRequest("Some properties are not valid"); // Status code: 400
-        }
-       /* public async Task<IActionResult> Register([FromBody] RegisterModel model)
+        public async Task<IActionResult> Register([FromBody] RegisterModel model)
          {
              var userExists = await _userManager.FindByEmailAsync(model.Email);
              if (userExists!= null)
@@ -90,12 +66,11 @@ namespace JwtWebApi.Controllers
              {
 
                 var confirmEmailToken = await this._userManager.GenerateEmailConfirmationTokenAsync(user);
-                await _emailSender.SendEmailAsync(user.Email, "Confirm your email", $"<h1>Welcome to Auth Demo</h1>" +
-                    $"<p>Please confirm your email by <a href='{confirmEmailToken}'>Clicking here</a></p>");
-                /*var message = new Message(new string[] { "ajeigbekehinde160@gmail.com" }, "Test Email", "This is content from our email.", "ajeigbekehinde160@gmail.com");
+                
+               /* var message = new Message(new string[] { "ajeigbekehinde160@gmail.com" }, "Test Email", "This is content from our email.", "ajeigbekehinde160@gmail.com");
                 _emailSender.SendEmail(message);*/
 
-               /* var encodedEmailToken = Encoding.UTF8.GetBytes(confirmEmailToken);
+                var encodedEmailToken = Encoding.UTF8.GetBytes(confirmEmailToken);
                 var validEmailToken = WebEncoders.Base64UrlEncode(encodedEmailToken);
 
                 string url = $"{_configuration["AppUrl"]}/api/auth/confirmemail?userid={user.Id}&token={validEmailToken}";
@@ -113,10 +88,10 @@ namespace JwtWebApi.Controllers
                      errors.Add(error.Description);
                  }
                  return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = string.Join(", ", errors) });
-         }*/
+         }
 
 
-        /* [HttpPost]
+         [HttpPost]
          [Route("register-admin")]
          public async Task<IActionResult> RegisterAdmin([FromBody] RegisterModel model)
          {
@@ -168,33 +143,10 @@ namespace JwtWebApi.Controllers
              }
 
              return Ok(new Response { Status = "Success", Message = "User created successfully!" });
-         }*/
+         }
 
 
-
-        [HttpPost]
-        [Route("login")]
-        
-        public async Task<IActionResult> LoginAsync([FromBody] LoginModel model)
-        {
-            if (ModelState.IsValid)
-            {
-                var result = await _userService.LoginUserAsync(model);
-
-                if (result.IsSuccess)
-                {
-                    await _mailService.SendEmailAsync(model.Email, "New login", "<h1>Hey!, new login to your account noticed</h1><p>New login to your account at " + DateTime.Now + "</p>");
-                    return Ok(result);
-                }
-
-                return BadRequest(result);
-            }
-
-            return BadRequest("Some properties are not valid");
-        }
-        
-
-       /* [HttpGet("ConfirmEmail")]
+        [HttpGet("ConfirmEmail")]
         public async Task<IActionResult> ConfirmEmail(string userId, string token)
         {
             if (string.IsNullOrWhiteSpace(userId) || string.IsNullOrWhiteSpace(token))
@@ -208,70 +160,61 @@ namespace JwtWebApi.Controllers
             }
 
             return BadRequest(result);
-        }*/
-        /*public async Task<IActionResult> Login([FromBody] LoginModel model)
+        }
+
+
+
+
+        [HttpPost]
+        [Route("login")]
+        public async Task<IActionResult> Login([FromBody] LoginModel model)
          {
+               var user = await _userManager.FindByEmailAsync(model.Email);
 
-                 var user = await _userManager.FindByEmailAsync(model.Email);
+            if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
+            {
+                var userRoles = await _userManager.GetRolesAsync(user);
 
-                 if (user != null && await _userManager.CheckPasswordAsync(user, model.Password))
+                var authClaims = new List<Claim>
                  {
-
-
-                     // var user = await _userManager.FindByNameAsync(model.);
-
-                     //if (user!=null && await _userManager.CheckPasswordAsync(user, model.Password))
-                     //{
-                     var userRoles = await _userManager.GetRolesAsync(user);
-
-                     var authClaims = new List<Claim>
-                 {
-                    // new Claim("Email", user.Email),
                      new Claim(ClaimTypes.Name, user.Email),
                      new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
                       new Claim(ClaimTypes.NameIdentifier, user.Id),
                  };
 
-                     foreach (var userRole in userRoles)
-                     {
-                         authClaims.Add(new Claim(ClaimTypes.Role, userRole));
-                     }
+                foreach (var userRole in userRoles)
+                {
+                    authClaims.Add(new Claim(ClaimTypes.Role, userRole));
+                }
 
-                     var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:SecretKey"]));
+                var authSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["JWT:SecretKey"]));
 
-                     var token = new JwtSecurityToken(
-                         issuer: _configuration["JWT: ValidIssuer"],
-                         audience: _configuration["JWT: ValidAudience"],
-                         expires: DateTime.Now.AddHours(3),
-                         claims: authClaims,
-                         signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
-                         );
+                var token = new JwtSecurityToken(
+                    issuer: _configuration["JWT: ValidIssuer"],
+                    audience: _configuration["JWT: ValidAudience"],
+                    expires: DateTime.Now.AddHours(3),
+                    claims: authClaims,
+                    signingCredentials: new SigningCredentials(authSigningKey, SecurityAlgorithms.HmacSha256)
+                    );
                 if (ModelState.IsValid)
                 {
-                    //   await _mailService.SendEmailAsync(model.Email, "New login", "<h1> Hey!, new login to your account noticed</h1><p>New login to your account at" + DateTime.Now + "</p> ");
+                    await _mailService.SendEmailAsync(model.Email, "New login", "<h1> Hey!, new login to your account noticed</h1><p>New login to your account at" + DateTime.Now + "</p> ");
 
                     return Ok(new
                     {
                         token = new JwtSecurityTokenHandler().WriteToken(token),
                         expiration = token.ValidTo
                     });
-                   await _emailSender.SendEmailAsync(user.Email, "Confirm your email", $"<h1>Welcome to Auth Demo</h1>" +
-                    $"<p>Please confirm your email by <a href='{token}'>Clicking here</a></p>");
+
                 }
-                
-
-                    
-                 }
-
-                 
 
 
-             
 
+            }
                  return Unauthorized("You're not recognised- Unauthorized!");
-         }*/
+         }
 
-        /*[HttpPost]
+        [HttpPost]
         [Route("Change-password")]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordModel model)
         {
@@ -403,51 +346,6 @@ namespace JwtWebApi.Controllers
              return Ok(new Response { Status = "Success", Message = "Password sucessfully reseted" });
          }
 
-         //Forgot Password
-         // public async Task<IActionResult> ForgotPassword ([FromBody] string email)
-         /*var user = await _userManager.FindByEmailAsync(email);
-          * 
-             if (user == null)
-                      return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = "User does not exist!" });
-          *  var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-             // here
-             var encodedToken = Encoding.UTF8.GetBytes(token);
-             var validToken = WebEncoders.Base64UrlEncode(encodedToken);
-         string url = $"{_configuration["AppUrl"]}/ResetPassword?email={email}&token= {validToken}";
-          *  return Ok(new { token = token });
-          *  
-          */
-
-
-        //Reset Password
-         /*public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordModel model)
-        var user = await _userManager.FindByEmailAsync(model.Email);
-        
-            if (user == null)
-                return StatusCode(StatusCodes.Status404NotFound, new Response { Status = "Error", Message = "No user associated with email!" });
-
-            if (string.Compare(model.NewPassword, model.ConfirmNewPassword) != 0)
-                return StatusCode(StatusCodes.Status400BadRequest, new Response { Status = "Error", Message = "The new Password does not match the confirmation!" });
-
-
-            var decodedToken = WebEncoders.Base64UrlDecode(model.Token);
-                 var normalToken = Encoding.UTF8.GetBytes(decodedToken);
-         var result = await _userManager.ResetPasswordAsync(user, normalToken, model.NewPassword);
-
-          if (!result.Succeeded)
-            {
-
-                var errors = new List<string>();
-
-                foreach (var error in result.Errors)
-                {
-                    errors.Add(error.Description);
-                }
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new Response { Status = "Error", Message = string.Join(", ", errors) });
-            }
-
-            return Ok(new Response { Status = "Success", Message = "Password sucessfully reseted" });
-         }*/
+       
     }
 }

@@ -84,12 +84,12 @@ namespace JwtWebApi
                         ValidAudience = Configuration["JWT :ValidAudience"],
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JWT:SecretKey"])),
                         ValidateIssuerSigningKey = true,
-                        //RequireExpirationTime = true
+                        RequireExpirationTime = true
                         
                     };
                 });
            // services.AddScoped<IEmailSender, EmailSender>();
-               services.AddScoped<IUserService, UserService>();
+              
             services.AddScoped<IMailService, SendGridMailService>();
 
             services.Configure<DataProtectionTokenProviderOptions>(options =>
